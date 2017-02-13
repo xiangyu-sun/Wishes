@@ -1,13 +1,21 @@
 import Vapor
+import VaporMySQL
+
 
 let drop = Droplet()
 
-drop.get { req in
-    return try drop.view.make("welcome", [
-    	"message": drop.localization[req.lang, "welcome", "title"]
-    ])
-}
+drop.preparations += User.self
 
-drop.resource("posts", PostController())
+(drop.view as? LeafRenderer)?.stem.cache = nil
+
+try drop.addProvider(VaporMySQL.Provider.self)
+
+
+let users = UserController()
+users.addRoutes(drop: drop)
+
+let controller = WishesViewController()
+controller.addRoutes(drop: drop)
+
 
 drop.run()

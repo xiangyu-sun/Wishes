@@ -10,6 +10,8 @@ drop.preparations += User.self
 
 try drop.addProvider(VaporMySQL.Provider.self)
 
+let basic = BasicController()
+basic.addRoutes(drop: drop)
 
 let users = UserController()
 users.addRoutes(drop: drop)

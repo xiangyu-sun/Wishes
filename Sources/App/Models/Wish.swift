@@ -4,25 +4,30 @@ import Foundation
 
 final class Wish {
     var id: Node?
-    var name: String
-    var link: String
+    var name: Valid<NameValidator>
+    var link: Valid<URLValidator>
     var userId: Node?
     
+    public static var entity: String {
+        return name + "es"
+    }
     
     var exists: Bool = false
     
-    init(name: String, link: String, userId: Node? = nil) {
-        self.id = UUID().uuidString.makeNode()
-        self.name = name
-        self.link = link
+    init(name: String, link: String, userId: Node? = nil)throws {
+        self.id = nil
+        self.name = try name.validated()
+        self.link = try link.validated()
         self.userId = userId
     }
     
     init(node: Node, in context: Context) throws {
         id = try node.extract("id")
-        name = try node.extract("name")
-        link = try node.extract("link")
-        userId = try node.extract("userId")
+        let nameString = try node.extract("name") as String
+        name = try nameString.validated()
+        let linkString = try node.extract("link") as String
+        link = try linkString.validated()
+        userId = try node.extract("user_id")
     }
     
 
@@ -32,9 +37,9 @@ extension Wish:Model{
     func makeNode(context: Context) throws -> Node {
         return try Node(node: [
             "id": id,
-            "name": name,
-            "link": link,
-            "userId": userId
+            "name": name.value,
+            "link": link.value,
+            "user_id": userId
             ])
     }
 }

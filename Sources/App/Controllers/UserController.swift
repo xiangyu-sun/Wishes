@@ -5,18 +5,6 @@ import Auth
 
 final class UserController {
     
-    let protect = ProtectMiddleware(error:
-        Abort.custom(status: .forbidden, message: "Not authorized.")
-    )
-    
-    func addRoutes(drop: Droplet) {
-        let users = drop.grouped("users")
-        users.get(handler: index)
-        users.post(handler: create)
-        users.delete(User.self, handler: delete)
-    
-    }
-    
     func index(request: Request) throws -> ResponseRepresentable {
         return try JSON(node: User.all().makeNode())
     }
@@ -37,7 +25,24 @@ final class UserController {
         return JSON([:])
     }
     
+    func wishesIndex(request: Request, user: User) throws -> ResponseRepresentable {
+        let children = try user.wishes()
+        return try JSON(node: children.makeNode())
+    }
+    func show(request: Request, user: User) throws -> ResponseRepresentable {
+        return try user.makeJSON()
+    }
+}
 
-    
+
+extension UserController: ResourceRepresentable{
+    func makeResource() -> Resource<User> {
+        return Resource(
+            index: index,
+            store: create,
+            show: show,
+            destroy: delete
+        )
+    }
 }
 

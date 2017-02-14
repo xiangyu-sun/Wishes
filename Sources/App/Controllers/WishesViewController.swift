@@ -3,16 +3,6 @@ import HTTP
 
 final class WishesController {
     
-    func addRoutes(drop: Droplet) {
-        let basic = drop.grouped("wishes")
-        basic.get(handler: index)
-        basic.post(handler: create)
-        basic.get(Wish.self, handler: show)
-        basic.patch(Wish.self, handler: update)
-        basic.delete(Wish.self, handler: delete)
-        basic.get(Wish.self, "user", handler: userShow)
-    }
-    
     func index(request: Request) throws -> ResponseRepresentable {
         return try JSON(node: Wish.all().makeNode())
     }
@@ -53,11 +43,19 @@ final class WishesController {
         return JSON([:])
     }
     
-    func userShow(request: Request, wish: Wish) throws -> ResponseRepresentable {
-        let user = try wish.user()
-        return try JSON(node: user?.makeNode())
-    }
     
+}
+
+extension WishesController:ResourceRepresentable{
+    func makeResource() -> Resource<Wish> {
+        return Resource(
+            index: index,
+            store: create,
+            show: show,
+            modify: update,
+            destroy: delete
+        )
+    }
 }
 
 

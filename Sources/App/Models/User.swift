@@ -61,6 +61,7 @@ extension User:Model{
     
 }
 
+
 extension User:Preparation{
     static func prepare(_ database: Database) throws {
         try database.create("users") { users in
@@ -129,7 +130,8 @@ extension User: Auth.User {
 
 extension User {
     func wishes() throws -> [Wish] {
-        return try children(nil, Wish.self).all()
+        return try children("user_id", Wish.self).all()
     }
 }
+
 

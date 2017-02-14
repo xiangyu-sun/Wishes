@@ -8,12 +8,15 @@ let drop = Droplet()
 
 let models:[Preparation.Type] = [User.self, Wish.self]
 
-drop.preparations.append(contentsOf: models)
+
+try drop.addProvider(VaporMySQL.Provider.self)
+
+drop.preparations += User.self
+drop.preparations += Wish.self
 
 
 (drop.view as? LeafRenderer)?.stem.cache = nil
 
-try drop.addProvider(VaporMySQL.Provider.self)
 
 
 let auth = AuthMiddleware(user: User.self)
@@ -24,11 +27,14 @@ let basic = BasicController()
 basic.addRoutes(drop: drop)
 
 let users = UserController()
-users.addRoutes(drop: drop)
+drop.resource("users", users)
 
 let controller = IndexViewController()
 controller.addRoutes(drop: drop)
 
+
+let wishes = WishesController()
+drop.resource("wishes", wishes)
 
 drop.get { (request) -> ResponseRepresentable in
     return Response.init(redirect: "/index")

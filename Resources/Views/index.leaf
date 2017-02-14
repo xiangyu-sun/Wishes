@@ -22,16 +22,16 @@
       </div>
     </div>
 
-    <form action="/wishes" method="post">
+    <form action="/index/addWish" method="post">
       <div class="row">
         <div class="three columns">
           <label>Name the wish</label>
-          <input name="short" class="u-full-width" placeholder="what's the wish" />
+          <input name="name" class="u-full-width" placeholder="what's the wish" />
         </div>
         <div class="nine columns">
           <label>Link</label>
-          <input name="long" class="u-full-width" placeholder="link" />
-          <input class="button-primary" type="submit" value="Save Wishe">
+          <input name="link" class="u-full-width" placeholder="link" />
+          <input class="button-primary" type="submit" value="Save Wish">
         </div>
       </div>
     </form>
@@ -45,7 +45,7 @@
           <p><span>#(wish.link)</span></p>
         </div>
         <div class="three columns">
-          <form action="/wishes/#(wish.id)/delete" method="post">
+          <form action="/index/#(wish.id)/delete" method="post">
             <input type="submit" value="Delete"/>
           </form>
         </div>

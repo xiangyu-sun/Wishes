@@ -21,6 +21,9 @@ final class IndexViewController {
         wishes.get("login", handler: loginView)
         wishes.post("login", handler: login)
         wishes.get("logout", handler: logout)
+        
+        wishes.post("addWish", handler: addWish)
+        wishes.post(Wish.self, "delete", handler: deleteWish)
     }
     
     func indexView(request: Request) throws -> ResponseRepresentable {
@@ -49,8 +52,27 @@ final class IndexViewController {
         return try drop.view.make("index", parameters)
     }
     
+    func deleteWish(request: Request, wish: Wish) throws -> ResponseRepresentable {
+        try wish.delete()
+        return Response(redirect: "/index")
+    }
+    
 
-
+    func addWish(request: Request) throws -> ResponseRepresentable {
+        
+        guard let name = request.data["name"]?.string, let link = request.data["link"]?.string else {
+            throw Abort.badRequest
+        }
+        let userId = try request.auth.user().id
+        
+        var wish = try Wish(name: name, link: link, userId: userId)
+        
+        try wish.save()
+        
+        return Response(redirect: "/index")
+    }
+    
+    
     
     func registerView(request: Request) throws -> ResponseRepresentable {
         return try drop.view.make("register")

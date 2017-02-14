@@ -1,14 +1,20 @@
 import Vapor
 import HTTP
 import Fluent
+import Auth
 
 final class UserController {
     
+    let protect = ProtectMiddleware(error:
+        Abort.custom(status: .forbidden, message: "Not authorized.")
+    )
+    
     func addRoutes(drop: Droplet) {
-        let basic = drop.grouped("users")
-        basic.get(handler: index)
-        basic.post(handler: create)
-        basic.delete(User.self, handler: delete)
+        let users = drop.grouped("users")
+        users.get(handler: index)
+        users.post(handler: create)
+        users.delete(User.self, handler: delete)
+    
     }
     
     func index(request: Request) throws -> ResponseRepresentable {
@@ -16,8 +22,13 @@ final class UserController {
     }
     
     func create(request: Request) throws -> ResponseRepresentable {
-        var user = try request.user()
+        
+        guard let json = request.json else { throw Abort.badRequest }
+        
+        var user =  try User(node: json)
+        
         try user.save()
+        
         return user
     }
     
@@ -30,9 +41,3 @@ final class UserController {
     
 }
 
-extension Request {
-    func user() throws -> User {
-        guard let json = json else { throw Abort.badRequest }
-        return try User(node: json)
-    }
-}

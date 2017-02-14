@@ -1,96 +1,63 @@
-//
-//  WishesViewController.swift
-//  Wishes
-//
-//  Created by alexander sun on 13/02/2017.
-//
-//
-
 import Vapor
 import HTTP
-import Auth
-import Turnstile
 
-final class WishesViewController {
+final class WishesController {
     
     func addRoutes(drop: Droplet) {
-        let wishes = drop.grouped("wishes")
-        wishes.get(handler: indexView)
-        wishes.get("register", handler: registerView)
-        wishes.post("register", handler: register)
-        wishes.get("login", handler: loginView)
-        wishes.post("login", handler: login)
-        wishes.get("logout", handler: logout)
+        let basic = drop.grouped("wishes")
+        basic.get(handler: index)
+        basic.post(handler: create)
+        basic.get(Wish.self, handler: show)
+        basic.patch(Wish.self, handler: update)
+        basic.delete(Wish.self, handler: delete)
+        basic.get(Wish.self, "user", handler: userShow)
     }
     
-    func indexView(request: Request) throws -> ResponseRepresentable {
-        
-        var user:User?
-        
-        do{
-            user = try request.auth.user() as? User
-        }
-        catch _ as AuthError{
-            
-        }
-      
-     
-  
-        let parameters = try Node(node: [
-            "authenticated": user != nil,
-            "user": user?.makeNode()
-            ])
-        return try drop.view.make("index", parameters)
+    func index(request: Request) throws -> ResponseRepresentable {
+        return try JSON(node: Wish.all().makeNode())
     }
     
-
-
-    
-    func registerView(request: Request) throws -> ResponseRepresentable {
-        return try drop.view.make("register")
+    func create(request: Request) throws -> ResponseRepresentable {
+        
+        guard let json = request.json else { throw Abort.badRequest }
+        
+        var wish = try Wish(node: json)
+        
+        try wish.save()
+        
+        return wish
     }
     
-    func register(request: Request) throws -> ResponseRepresentable {
-        
-        guard let email = request.formURLEncoded?["email"]?.string,
-            let password = request.formURLEncoded?["password"]?.string,
-            let name = request.formURLEncoded?["name"]?.string else {
-                return "Missing email, password, or name"
-        }
-    
-        _ = try User.register(name: name, email: email, rawPassword: password)
-        return Response(redirect: "/users")
-        
+    func show(request: Request, wish: Wish) throws -> ResponseRepresentable {
+        return wish
     }
     
-    func loginView(request: Request) throws -> ResponseRepresentable {
-        return try drop.view.make("login")
+    func update(request: Request, wish: Wish) throws -> ResponseRepresentable {
+        guard let json = request.json else { throw Abort.badRequest }
+        
+        let new = try Wish(node: json)
+        
+        var wish = wish
+        
+        wish.name = new.name
+        
+        wish.link = new.link
+        
+        try wish.save()
+        
+        return wish
     }
     
-    func login(request: Request) throws -> ResponseRepresentable {
-        
-        guard let email = request.formURLEncoded?["email"]?.string,
-            let password = request.formURLEncoded?["password"]?.string
-            else {
-                return "Missing email, or password"
-        }
-        
-        
-        try request.auth.login(UsernamePassword(username: email, password: password))
-        
-        return Response(redirect: "/wishes")
-        
+    func delete(request: Request, wish: Wish) throws -> ResponseRepresentable {
+        try wish.delete()
+        return JSON([:])
     }
     
-    
-    
-    func logout(request: Request) throws -> ResponseRepresentable {
-        
-        try request.auth.logout()
-        
-        return Response(redirect: "/wishes")
-        
+    func userShow(request: Request, wish: Wish) throws -> ResponseRepresentable {
+        let user = try wish.user()
+        return try JSON(node: user?.makeNode())
     }
     
 }
+
 

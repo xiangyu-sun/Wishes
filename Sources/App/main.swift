@@ -2,9 +2,14 @@ import Vapor
 import VaporMySQL
 import Auth
 import HTTP
+import Fluent
+
 let drop = Droplet()
 
-drop.preparations += User.self
+let models:[Preparation.Type] = [User.self, Wish.self]
+
+drop.preparations.append(contentsOf: models)
+
 
 (drop.view as? LeafRenderer)?.stem.cache = nil
 
@@ -21,12 +26,12 @@ basic.addRoutes(drop: drop)
 let users = UserController()
 users.addRoutes(drop: drop)
 
-let controller = WishesViewController()
+let controller = IndexViewController()
 controller.addRoutes(drop: drop)
 
 
 drop.get { (request) -> ResponseRepresentable in
-    return Response.init(redirect: "/wishes")
+    return Response.init(redirect: "/index")
 }
 
 drop.run()

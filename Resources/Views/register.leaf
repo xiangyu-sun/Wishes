@@ -3,7 +3,7 @@
 #export("body") {
   <div class="row">
     <div class="u-full-width">
-      <form action="/wishes/register" method="post">
+      <form action="/index/register" method="post">
         <label>Email</label>
         <input name="email" class="u-full-width" type="email"/>
         <label>Password</label>

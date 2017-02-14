@@ -102,7 +102,7 @@ extension User: Auth.User {
         }
         
         guard let u = user else {
-            throw Abort.custom(status: .badRequest, message: "User not found.:)")
+            throw Abort.custom(status: .badRequest, message: "User not found.")
         }
         
         return u
@@ -127,5 +127,9 @@ extension User: Auth.User {
     }
 }
 
-
+extension User {
+    func wishes() throws -> [Wish] {
+        return try children(nil, Wish.self).all()
+    }
+}
 

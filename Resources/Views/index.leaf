@@ -6,10 +6,10 @@
     <div class="u-full-width">
       #if(authenticated) {
         <h5>Welcome, #(user.email)</h5>
-        <a class="button" href="/wishes/logout">Logout</a>
+        <a class="button" href="/index/logout">Logout</a>
       } ##else() {
-        <a class="button" href="/wishes/login">Login</a>
-        <a class="button" href="/wishes/register">Register</a>
+        <a class="button" href="/index/login">Login</a>
+        <a class="button" href="/index/register">Register</a>
       }
     </div>
   </div>
@@ -18,34 +18,34 @@
 
     <div class="row">
       <div class="u-full-width">
-        <h4>Add New Acronym</h4>
+        <h4>Add New Wishes</h4>
       </div>
     </div>
 
     <form action="/wishes" method="post">
       <div class="row">
         <div class="three columns">
-          <label>Acronym</label>
-          <input name="short" class="u-full-width" placeholder="short form e.g. FTW" />
+          <label>Name the wish</label>
+          <input name="short" class="u-full-width" placeholder="what's the wish" />
         </div>
         <div class="nine columns">
-          <label>Long Form</label>
-          <input name="long" class="u-full-width" placeholder="long form e.g. For The Win" />
-          <input class="button-primary" type="submit" value="Save Acronym">
+          <label>Link</label>
+          <input name="long" class="u-full-width" placeholder="link" />
+          <input class="button-primary" type="submit" value="Save Wishe">
         </div>
       </div>
     </form>
 
-    #loop(acronyms, "acronym") {
+    #loop(wishes, "wish") {
       <div class="row">
         <div class="three columns">
-          <h5><span>#(acronym.short)</span></h5>
+          <h5><span>#(wish.name)</span></h5>
         </div>
         <div class="six columns">
-          <p><span>#(acronym.long)</span></p>
+          <p><span>#(wish.link)</span></p>
         </div>
         <div class="three columns">
-          <form action="/wishes/#(acronym.id)/delete" method="post">
+          <form action="/wishes/#(wish.id)/delete" method="post">
             <input type="submit" value="Delete"/>
           </form>
         </div>
